@@ -1230,12 +1230,38 @@ GROUP BY
 
 - **ST request:**
 - **Result:**
+```sql
+USE mavenfuzzyfactory;
+
+SELECT 
+   YEAR(website_sessions.created_at) AS yr,
+   MONTH(website_sessions.created_at) as mo,
+   COUNT(DISTINCT website_sessions.website_session_id) as sessions,
+   COUNT(DISTINCT orders.order_id) as orders,
+   SUM(orders.price_usd)/COUNT(DISTINCT website_sessions.website_session_id) as conv_rate,
+   COUNT(DISTINCT CASE WHEN primary_product_id = 1 THEN order_id ELSE NULL END) AS product_one_orders,
+   COUNT(DISTINCT CASE WHEN primary_product_id = 2 THEN order_id ELSE NULL END) AS product_two_orders
+
+FROM website_sessions
+LEFT JOIN orders
+ON website_sessions.website_session_id = orders.website_session_id
+WHERE website_sessions.created_at < '2013-04-05'
+AND website_sessions.created_at > '2012-04-01'
+GROUP BY 1,2
+``
+![image](https://user-images.githubusercontent.com/107226432/202290319-bd2e0bec-39d9-4c87-80ec-3fff7507b6fe.png)
+
 
 <img width="290" alt="image" src="https://user-images.githubusercontent.com/81607668/171321028-cc786a9c-91d5-4f21-b108-d81e45f4cbff.png">
 
 **Insights:**
 
 ### Product Level Website Analysis
+
+Product-focused website analysis is all abput learning how customers interact with each of your products, and how well each product converts customers
+
+- Understanding which of the products gnerate the most interest
+- Analyzing the impact on website conversion rates when you add a new poduct
 
 ### 📌 Q22: Product Pathing Analysis
 <img width="287" alt="image" src="https://user-images.githubusercontent.com/81607668/171321218-7c8db4f4-3384-48c5-b5a1-d2b86a1186a2.png">
