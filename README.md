@@ -1203,6 +1203,22 @@ GROUP BY WEEK(s.created_at);
 
 - **ST request:**
 - **Result:**
+```sql 
+SELECT 
+   YEAR(created_at) AS yr,
+   MONTH(created_at) as mo,
+   COUNT(DISTINCT order_id) as number_of_sales,
+   SUM(price_usd) as total_revenue,
+   SUM(price_usd - cogs_usd) as total_margin
+
+FROM orders
+WHERE created_at < '2013-01-04'
+GROUP BY
+    YEAR(created_at),
+    MONTH(created_at)
+ ```
+
+
 
 <img width="290" alt="image" src="https://user-images.githubusercontent.com/81607668/171320976-23ec861c-37f5-4fe8-a675-94d316d5da01.png">
 
