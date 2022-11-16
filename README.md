@@ -1,5 +1,5 @@
 # Advanced-SQL-Project
-# 📊 Udemy Advanced SQL: MySQL Data Analysis & Business Intelligence
+# Advanced SQL: MySQL Data Analysis & Business Intelligence
 
 ## Introduction
 
