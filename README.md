@@ -1230,9 +1230,8 @@ GROUP BY
 
 - **ST request:**
 - **Result:**
-```sql
-USE mavenfuzzyfactory;
 
+```sql
 SELECT 
    YEAR(website_sessions.created_at) AS yr,
    MONTH(website_sessions.created_at) as mo,
@@ -1248,7 +1247,7 @@ ON website_sessions.website_session_id = orders.website_session_id
 WHERE website_sessions.created_at < '2013-04-05'
 AND website_sessions.created_at > '2012-04-01'
 GROUP BY 1,2
-``
+```
 ![image](https://user-images.githubusercontent.com/107226432/202290319-bd2e0bec-39d9-4c87-80ec-3fff7507b6fe.png)
 
 
