@@ -1210,7 +1210,6 @@ SELECT
    COUNT(DISTINCT order_id) as number_of_sales,
    SUM(price_usd) as total_revenue,
    SUM(price_usd - cogs_usd) as total_margin
-
 FROM orders
 WHERE created_at < '2013-01-04'
 GROUP BY
@@ -1240,7 +1239,6 @@ SELECT
    SUM(orders.price_usd)/COUNT(DISTINCT website_sessions.website_session_id) as conv_rate,
    COUNT(DISTINCT CASE WHEN primary_product_id = 1 THEN order_id ELSE NULL END) AS product_one_orders,
    COUNT(DISTINCT CASE WHEN primary_product_id = 2 THEN order_id ELSE NULL END) AS product_two_orders
-
 FROM website_sessions
 LEFT JOIN orders
 ON website_sessions.website_session_id = orders.website_session_id
@@ -1330,10 +1328,30 @@ GROUP BY time_period
 
 - **ST request:**
 - **Result:**
+```sql
+SELECT
+CASE    WHEN website_sessions.created_at < '2013-12-12' then 'A. Pre_Birthday_Bear'
+        WHEN website_sessions.created_at >= '2013-12-12' THEN 'B. Post_Birthday_Bear'
+        ELSE 'check logic'
+	END AS time_period,
+    COUNT(DISTINCT website_sessions.website_session_id) as sessions,
+    COUNT(DISTINCT orders.order_id) as orders,
+    COUNT(DISTINCT orders.order_id)/ COUNT(DISTINCT website_sessions.website_session_id) AS conv_rate,
+    SUM(orders.price_usd) as total_revenue,
+    SUM(orders.items_purchased) as total_product_sold,
+    SUM(orders.price_usd)/COUNT(DISTINCT orders.order_id) as average_order_value,
+    SUM(orders.items_purchased) / COUNT(DISTINCT orders.order_id) as products_per_order,
+    SUM(orders.price_usd)/COUNT(DISTINCT website_sessions.website_session_id) as revenue_per_session
+FROM website_sessions
+	LEFT JOIN orders
+		on orders.website_session_id = website_sessions.website_session_id
+WHERE website_sessions.created_at between '2013-11-12' and '2014-01-12'
+group by 1;
+```
+![image](https://user-images.githubusercontent.com/107226432/202868381-91d95830-0b33-4edd-9859-9bbdd25d4dd6.png)
+
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/81607668/171321438-1b4ac1c9-e81b-4cfb-b89e-7b935ad904f6.png">
-
-**Insights:**
 
 ### Product Refund Analysis
 
@@ -1342,6 +1360,7 @@ GROUP BY time_period
 
 - **ST request:**
 - **Result:**
+
 
 <img width="289" alt="image" src="https://user-images.githubusercontent.com/81607668/171321546-834cd702-d32d-45c1-b49a-9a946321f52d.png">
 
