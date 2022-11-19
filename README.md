@@ -1267,32 +1267,63 @@ Product-focused website analysis is all abput learning how customers interact wi
 
 - **ST request:**
 - **Result:**
+```sql
+-- STEP 1
+CREATE TEMPORARY TABLE products_pageviews
+SELECT 
+	website_session_id,
+    website_pageview_id,
+    created_at,
+    CASE
+		WHEN created_at < '2013-01-06' THEN 'A. Pre_product_2'
+        WHEN created_at >= '2013-01-06' THEN 'B. Post_Product_2'
+        ELSE 'uh oh...check logic'
+	END AS time_period
+FROM website_pageviews
+WHERE created_at < '2013-04-06'
+	AND created_at > '2012-10-06'
+    AND pageview_url = '/products';
+
+-- STEP 2: find the next pageview id that occur after the product pageview
+CREATE TEMPORARY TABLE sessions_w_next_pageview_id
+SELECT
+	products_pageviews.time_period,
+    products_pageviews.website_session_id,
+    MIN(website_pageviews.website_pageview_id) as min_next_pageview_id
+FROM products_pageviews
+	LEFT JOIN website_pageviews
+		ON website_pageviews.website_session_id = products_pageviews.website_session_id
+        AND website_pageviews.website_pageview_id > products_pageviews.website_pageview_id
+GROUP BY 1,2;
+
+-- STEP 3: find the pageview_url assciated with any applicable next pageview id
+CREATE TEMPORARY TABLE sessions_w_next_pageview_url
+SELECT
+	sessions_w_next_pageview_id.time_period,
+    sessions_w_next_pageview_id.website_session_id,
+    website_pageviews.pageview_url as next_pageview_url
+FROM sessions_w_next_pageview_id
+	LEFT JOIN website_pageviews
+		ON website_pageviews.website_pageview_id= sessions_w_next_pageview_id.min_next_pageview_id;
+-- SELECT * FROM sessions_w_next_pageview_url
+-- STEP 4: summarize the data and analyze the pre vs post periods
+SELECT
+	time_period,
+    COUNT(DISTINCT website_session_id) as sessions,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur is not null then website_session_id else null end) as w_next_pg,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur is not null then website_session_id else null end)/COUNT(DISTINCT website_session_id) as sessions,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur = '/the-original-mr-fuzzy' then website_session_id else null end) as to_mrfuzzy,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur = '/the-original-mr-fuzzy' then website_session_id else null end)/COUNT(DISTINCT website_session_id) as pct_to_mrfuzzy,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur = '/the-original-love-bear' then website_session_id else null end) as to_lovebear,
+    COUNT(DISTINCT CASE WHEN next_pageview_ur = '/the-original-love-bear' then website_session_id else null end)/COUNT(DISTINCT website_session_id) as pct_to_lovebear
+FROM sessions_w_next_pageview_url
+GROUP BY time_period
+```
+![image](https://user-images.githubusercontent.com/107226432/202867455-f177d363-a167-416f-bba3-baf351c2acdb.png)
+
 
 <img width="291" alt="image" src="https://user-images.githubusercontent.com/81607668/171321239-e0b4aed0-d2a2-4418-b96c-a4d435ffcb0c.png">
 
-**Insights:**
-
-### 📌 Q23: Product Conversion Funnels
-<img width="290" alt="image" src="https://user-images.githubusercontent.com/81607668/171321285-5df87937-7fd9-48fb-a103-3790de1d793a.png">
-
-- **ST request:**
-- **Result:**
-
-<img width="292" alt="image" src="https://user-images.githubusercontent.com/81607668/171321307-771b508e-4ac9-4c5c-afb8-2cfa240a88a1.png">
-
-**Insights:**
-
-### Cross-Selling Products
-
-### 📌 Q24: Cross-Sell Analysis
-<img width="289" alt="image" src="https://user-images.githubusercontent.com/81607668/171321353-c792df1b-b851-41ae-93df-1ff136874b05.png">
-
-- **ST request:**
-- **Result:**
-
-<img width="290" alt="image" src="https://user-images.githubusercontent.com/81607668/171321373-9f314744-af27-4f91-9881-74cbf3d34951.png">
-
-**Insights:**
 
 ### 📌 Q25: Portfolio Expansion Analysis
 <img width="289" alt="image" src="https://user-images.githubusercontent.com/81607668/171321393-c9de555f-e2ed-4302-af15-f0dd306e3878.png">
