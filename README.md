@@ -1360,9 +1360,28 @@ group by 1;
 
 - **ST request:**
 - **Result:**
-
-
-<img width="289" alt="image" src="https://user-images.githubusercontent.com/81607668/171321546-834cd702-d32d-45c1-b49a-9a946321f52d.png">
+```sql
+SELECT 
+	YEAR(order_items.created_at) as yr,
+    MONTH(order_items.created_at) as mo,
+    COUNT(DISTINCT CASE WHEN product_id = 1 THEN order_items.order_item_id ELSE NULL END) AS p1_orders,
+    COUNT(DISTINCT CASE WHEN product_id = 1 THEN order_item_refunds.order_item_id ELSE NULL END)
+		/COUNT(DISTINCT CASE WHEN product_id = 1 THEN order_items.order_item_id ELSE NULL END) AS p1_refund_rt,
+    COUNT(DISTINCT CASE WHEN product_id = 2 THEN order_items.order_item_id ELSE NULL END) AS p2_orders,
+     COUNT(DISTINCT CASE WHEN product_id = 2 THEN order_item_refunds.order_item_id ELSE NULL END)
+		/COUNT(DISTINCT CASE WHEN product_id = 2 THEN order_items.order_item_id ELSE NULL END) AS p2_refund_rt,
+	COUNT(DISTINCT CASE WHEN product_id = 3 THEN order_items.order_item_id ELSE NULL END) AS p3_orders,
+     COUNT(DISTINCT CASE WHEN product_id = 3 THEN order_item_refunds.order_item_id ELSE NULL END)
+		/COUNT(DISTINCT CASE WHEN product_id = 3 THEN order_items.order_item_id ELSE NULL END) AS p3_refund_rt
+FROM order_items
+	LEFT JOIN order_item_refunds
+		on order_items.order_item_id = order_item_refunds.order_item_id
+WHERE order_items.created_at < '2014-10-15'
+GROUP BY 1,2
+```
+![image](https://user-images.githubusercontent.com/107226432/202869686-298bff8f-045a-4c8e-be17-8df1c05e72dd.png)
+		
+ <img width="289" alt="image" src="https://user-images.githubusercontent.com/81607668/171321546-834cd702-d32d-45c1-b49a-9a946321f52d.png">
 
 **Insights:**
 
