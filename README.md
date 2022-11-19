@@ -1216,7 +1216,7 @@ WHERE created_at < '2013-01-04'
 GROUP BY
     YEAR(created_at),
     MONTH(created_at)
- ```
+```sql
 ![image](https://user-images.githubusercontent.com/107226432/202288490-4d47dd77-839b-445d-8201-e2eacf57303f.png)
 
 
