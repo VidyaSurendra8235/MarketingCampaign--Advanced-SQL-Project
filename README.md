@@ -1396,6 +1396,44 @@ GROUP BY 1,2
 
 - **ST request:**
 - **Result:**
+```sql
+use mavenfuzzyfactory;
+CREATE TEMPORARY TABLE sessions_w_repeat
+SELECT
+	new_sessions.user_id,
+    new_sessions.website_session_id as new_session_id,
+    website_sessions.website_session_id as repeat_session_id
+FROM
+(
+SELECT
+	user_id,
+    website_session_id
+FROM website_sessions
+WHERE created_at < '2014-11-01'
+	AND created_at >= '2014-01-01'
+    AND is_repeat_session = 0
+) as new_sessions
+	LEFT JOIN website_sessions
+		ON website_sessions.user_id = new_sessions.user_id
+        AND website_sessions.is_repeat_session = 1
+        AND website_sessions.website_session_id > new_sessions.website_session_id
+        AND website_sessions.created_at < '2014-11-01'
+        AND website_sessions.created_at >= '2014-01-01';
+SELECT 
+		repeat_sessions,
+        COUNT(DISTINCT user_id) as users
+FROM(SELECT
+		user_id,
+		COUNT(DISTINCT new_session_id) as new_sessions,
+		COUNT(DISTINCT repeat_session_id) as repeat_sessions
+		FROM sessions_w_repeat
+        GROUP BY 1
+        ORDER BY 3 DESC
+        ) AS user_level
+GROUP BY 1
+;
+```
+![image](https://user-images.githubusercontent.com/107226432/202875006-5a117006-a63a-4106-9a81-03e8f8501bb3.png)
 
 <img width="292" alt="image" src="https://user-images.githubusercontent.com/81607668/171321700-27f961a7-6ad4-47a0-9f66-fe13bcd4aa79.png">
 
