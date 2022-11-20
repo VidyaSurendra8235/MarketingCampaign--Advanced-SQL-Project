@@ -1444,6 +1444,69 @@ GROUP BY 1
 
 - **ST request:**
 - **Result:**
+```sql
+use mavenfuzzyfactory;
+CREATE TEMPORARY TABLE sessions_w_repeats_for_time_diffe
+SELECT
+	new_sessions.user_id,
+    new_sessions.website_session_id as new_session_id,
+    new_sessions.created_at as new_session_created_at,
+    website_sessions.website_session_id as repeat_session_id,
+    website_sessions.created_at as repeat_session_created_at
+FROM
+(
+SELECT
+	user_id,
+    website_session_id,
+    created_at
+FROM website_sessions
+WHERE created_at < '2014-11-01'
+	AND created_at >= '2014-01-01'
+    AND is_repeat_session = 0
+) as new_sessions
+	LEFT JOIN website_sessions
+		ON website_sessions.user_id = new_sessions.user_id
+        AND website_sessions.is_repeat_session = 1
+        AND website_sessions.website_session_id > new_sessions.website_session_id
+        AND website_sessions.created_at < '2014-11-01'
+        AND website_sessions.created_at >= '2014-01-01';
+SELECT 
+		repeat_sessions,
+        COUNT(DISTINCT user_id) as users
+FROM(SELECT
+		user_id,
+		COUNT(DISTINCT new_session_id) as new_sessions,
+		COUNT(DISTINCT repeat_session_id) as repeat_sessions
+		FROM sessions_w_repeat
+        GROUP BY 1
+        ORDER BY 3 DESC
+        ) AS user_level
+GROUP BY 1
+;
+
+CREATE TEMPORARY TABLE users_first_to_second
+SELECT 
+	user_id,
+    DATEDIFF(second_session_created_at, new_session_created_at) as days_first_to_second_session
+FROM(
+SELECT 
+	user_id,
+    new_session_id,
+    new_session_created_at,
+    MIN(repeat_session_id) as second_session_id,
+    MIN(repeat_session_created_at) as second_session_created_at
+FROM sessions_w_repeats_for_time_diffe
+WHERE repeat_session_id is not null
+GROUP BY 1,2,3
+)AS first_second;
+
+SELECT
+	AVG(days_first_to_second_session) as avg_days_first_to_second,
+    MIN(days_first_to_second_session) as min_days_first_to_second,
+    MAX(days_first_to_second_session) as min_days_first_to_second
+FROM users_first_to_second
+```
+![image](https://user-images.githubusercontent.com/107226432/202876372-4efe79bf-87ab-49e2-9a6e-cb6ab33a5827.png)
 
 <img width="290" alt="image" src="https://user-images.githubusercontent.com/81607668/171321784-c057525c-034d-459e-be13-dcbd0be45559.png">
 
