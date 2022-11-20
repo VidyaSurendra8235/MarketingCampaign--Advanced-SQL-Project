@@ -1530,6 +1530,7 @@ WHERE website_sessions.created_at < '2014-11-08'
 GROUP BY 1
 ```
 ![image](https://user-images.githubusercontent.com/107226432/202876720-5a9efa4e-ec08-456c-99bc-9ae27c12b5c4.png)
+
 <img width="288" alt="image" src="https://user-images.githubusercontent.com/81607668/171322014-a4376283-9cbe-44ec-91f0-775b983b8090.png">
 
 **Insights:**
