@@ -649,7 +649,7 @@ GROUP BY b.pageview_url;
 
 ***
 
-## Mid-Course Project
+
 
 **👩🏻‍💼 THE SITUATION**
 
